@@ -1,6 +1,9 @@
 Gradle AspectJ plugin
 =====================
 
+All credits belong to the original repository. It looks like the hosted Nexus server is not useable any longer.
+Therefore this fork ensures, that it is still reusable in out environment.
+
 Usage
 -----
 

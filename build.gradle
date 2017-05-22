@@ -4,9 +4,22 @@ apply plugin: 'maven-publish'
 group = 'nl.eveoh'
 version = '1.6'
 
-repositories {
-    maven {
-        url "https://maven.eveoh.nl/content/groups/public"
+def uploadRepository = hasProperty("DEPLOY_REPO") ? DEPLOY_REPO : "http://fallback:/content/repositories/snapshots"
+def deployUser = hasProperty("DEPLOY_USER") ? DEPLOY_USER : project.hasProperty('repoUser')? "${repoUser}":"global_read"
+def deployPassword = hasProperty("DEPLOY_PASSWORD") ? DEPLOY_PASSWORD : project.hasProperty('repoPW') ? "${repoPW}":"read-only"
+
+buildscript {
+    def repoUser = project.hasProperty('repoUser')? "${repoUser}":project.hasProperty('MAVEN_USER') ? "${MAVEN_USER}":"global_read"
+    def repoPW = project.hasProperty('repoPW') ? "${repoPW}":project.hasProperty('MAVEN_PASSWORD') ? "${MAVEN_PASSWORD}":"read-only"
+
+    repositories {
+        maven {
+            url "https://davis.wincor-nixdorf.com/nexus/content/groups/ps-group"
+            credentials {
+                username "${repoUser}"
+                password "${repoPW}"
+            }
+        }
     }
 }
 
@@ -23,14 +36,15 @@ publishing {
     }
     repositories {
         maven {
-            url "https://maven.eveoh.nl/content/repositories/releases"
-            if (project.hasProperty('mavenUser')) {
-                credentials {
-                    username mavenUser
-                    password mavenPass
-                }
+            url "${uploadRepository}"
+            credentials {
+                username "${deployUser}"
+                password "${deployPassword}"
             }
         }
     }
 }
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.2'
+}
